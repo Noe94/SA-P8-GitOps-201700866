@@ -9,6 +9,10 @@ global:
     course: software-avanzado
     practice: p8
 postgresql:
+  image:
+    registry: registry-1.docker.io
+    repository: bitnami/postgresql
+    digest: "sha256:b69d1fca390fb131639e86e820f248acfc5d911339dc884796f8009260c598d7"
   enabled: true
   fullnameOverride: postgresql
 
