@@ -1,0 +1,32 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- range $service := .Values.networkPolicy.microservices }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-to-{{ $service.name }}
+  namespace: {{ $.Values.global.namespace | quote }}
+  labels:
+    {{- include "sa-platform.labels" $ | nindent 4 }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $service.name | quote }}
+      app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: "gateway"
+              app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+
+      ports:
+        - protocol: TCP
+          port: {{ $service.port }}
+{{- end }}
+{{- end }}

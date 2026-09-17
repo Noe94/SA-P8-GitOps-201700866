@@ -1,0 +1,40 @@
+apiVersion: v2
+name: sa-platform
+description: Plataforma de microservicios P8 - GitOps y entrega progresiva
+type: application
+version: 0.3.0
+appVersion: "2.0.0"
+dependencies:
+  - name: catalog-service
+    version: 0.1.0
+    repository: "file://subcharts/catalog-service"
+
+  - name: inventory-service
+    version: 0.1.0
+    repository: "file://subcharts/inventory-service"
+
+  - name: orders-service
+    version: 0.1.0
+    repository: "file://subcharts/orders-service"
+
+  - name: shipping-service
+    version: 0.1.0
+    repository: "file://subcharts/shipping-service"
+
+  - name: auth-service
+    version: 0.1.0
+    repository: "file://subcharts/auth-service"
+
+  - name: gateway
+    version: 0.1.0
+    repository: "file://subcharts/gateway"
+
+  - name: postgresql
+    version: 18.8.13
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+
+  - name: rabbitmq
+    version: 16.0.14
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: rabbitmq.enabled

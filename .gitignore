@@ -1,0 +1,14 @@
+﻿# Secretos locales o en texto plano
+.env
+.env.*
+*.secret.yaml
+*.plaintext.yaml
+*.key
+*.pem
+
+# Dependencias Helm generadas
+charts/sa-platform/charts/*.tgz
+
+# Temporales
+*.tmp
+*.log

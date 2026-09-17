@@ -1,0 +1,88 @@
+global:
+  namespace: sa-p8-dev
+  logLevel: info
+  imageTag: "1.0.0"
+replicaCount: 2
+
+image:
+  repository: ghcr.io/noe94/p8-auth
+  tag: ""
+  pullPolicy: IfNotPresent
+
+containerPort: 3005
+
+service:
+  type: ClusterIP
+  port: 3005
+
+config:
+  serviceName: auth-service
+  port: "3005"
+  frontendUrl: "http://localhost"
+  jwtExpiresInSeconds: "900"
+  jwtRefreshGraceSeconds: "300"
+
+database:
+  host: postgresql
+  port: "5432"
+  name: p8db
+
+secrets:
+  databaseSecretName: sa-platform-postgresql-credentials
+  authSecretName: sa-platform-auth-credentials
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 96Mi
+  limits:
+    cpu: 300m
+    memory: 192Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+serviceAccount:
+  name: "auth-service-sa"
+  automount: false
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+probes:
+  startup:
+    path: /api/health
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    failureThreshold: 18
+
+  readiness:
+    path: /api/health
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    failureThreshold: 3
+
+  liveness:
+    path: /api/health
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    failureThreshold: 3

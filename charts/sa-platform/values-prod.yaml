@@ -1,0 +1,65 @@
+﻿global:
+  namespace: sa-p8-prod
+  environment: prod
+  logLevel: info
+  imageTag: "1.0.0"
+
+catalog-service:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+inventory-service:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+orders-service:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+shipping-service:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+auth-service:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 192Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+gateway:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi

@@ -1,0 +1,17 @@
+{{- if .Values.cronjobs.dbWriter.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cronjob-db-writer-config
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    app.kubernetes.io/name: cronjob-db-writer
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/component: cronjob
+    {{- include "sa-platform.labels" . | nindent 4 }}
+data:
+  DB_HOST: {{ .Values.cronjobs.dbWriter.config.dbHost | quote }}
+  DB_PORT: {{ .Values.cronjobs.dbWriter.config.dbPort | quote }}
+  DB_NAME: {{ .Values.cronjobs.dbWriter.config.dbName | quote }}
+  CARNET: {{ required "cronjobs.dbWriter.config.carnet es obligatorio" .Values.cronjobs.dbWriter.config.carnet | quote }}
+{{- end }}

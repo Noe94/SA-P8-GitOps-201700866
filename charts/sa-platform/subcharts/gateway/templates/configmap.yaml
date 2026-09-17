@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gateway.configMapName" . }}
+  namespace: {{ required "global.namespace es obligatorio" .Values.global.namespace | quote }}
+  labels:
+    {{- include "gateway.labels" . | nindent 4 }}
+
+data:
+  nginx.conf: |
+    pid /tmp/nginx.pid;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        client_body_temp_path /tmp/client_temp;
+        proxy_temp_path       /tmp/proxy_temp;
+        fastcgi_temp_path     /tmp/fastcgi_temp;
+        uwsgi_temp_path       /tmp/uwsgi_temp;
+        scgi_temp_path        /tmp/scgi_temp;
+
+        server {
+            listen 8080;
+
+            proxy_http_version 1.1;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            location = /health {
+                default_type application/json;
+                return 200 '{"servicio":"api-gateway","estado":"OK"}';
+            }
+
+            location /catalog/ {
+                proxy_pass http://{{ .Values.config.upstreams.catalog.host }}:{{ .Values.config.upstreams.catalog.port }}/;
+            }
+
+            location /inventory/ {
+                proxy_pass http://{{ .Values.config.upstreams.inventory.host }}:{{ .Values.config.upstreams.inventory.port }}/;
+            }
+
+            location /orders/ {
+                proxy_pass http://{{ .Values.config.upstreams.orders.host }}:{{ .Values.config.upstreams.orders.port }}/;
+            }
+
+            location /shipping/ {
+                proxy_pass http://{{ .Values.config.upstreams.shipping.host }}:{{ .Values.config.upstreams.shipping.port }}/;
+            }
+
+            location /auth/ {
+                proxy_pass http://{{ .Values.config.upstreams.auth.host }}:{{ .Values.config.upstreams.auth.port }}/;
+            }
+        }
+    }

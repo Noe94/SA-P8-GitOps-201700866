@@ -1,0 +1,16 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "orders-service.fullname" . }}
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    {{- include "orders-service.labels" . | nindent 4 }}
+
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+
+  selector:
+    matchLabels:
+      {{- include "orders-service.selectorLabels" . | nindent 6 }}
+{{- end }}

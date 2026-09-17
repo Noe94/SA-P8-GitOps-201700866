@@ -1,0 +1,58 @@
+﻿apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: p8-require-run-as-nonroot
+  annotations:
+    policies.kyverno.io/title: Require runAsNonRoot
+    policies.kyverno.io/category: Pod Security Standards
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationActions:
+    - Deny
+
+  evaluation:
+    background:
+      enabled: true
+
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+
+  matchConditions:
+    - name: p8-namespaces
+      expression: >-
+        object.metadata.namespace in ['sa-p8-dev', 'sa-p8-prod']
+
+  variables:
+    - name: allContainers
+      expression: >-
+        object.spec.containers
+        + object.spec.?initContainers.orValue([])
+        + object.spec.?ephemeralContainers.orValue([])
+
+  validations:
+    - expression: >-
+        (
+          object.spec.?securityContext.?runAsNonRoot.orValue(false) == true
+          && variables.allContainers.all(
+            c,
+            c.?securityContext.?runAsNonRoot.orValue(true) == true
+          )
+        )
+        ||
+        variables.allContainers.all(
+          c,
+          c.?securityContext.?runAsNonRoot.orValue(false) == true
+        )
+      message: >-
+        La ejecución como root no está permitida. Debe configurarse
+        runAsNonRoot: true a nivel del Pod o en todos sus contenedores.

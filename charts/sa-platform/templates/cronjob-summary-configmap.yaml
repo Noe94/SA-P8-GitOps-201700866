@@ -1,0 +1,26 @@
+{{- if .Values.cronjobs.summary.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cronjob-summary-config
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    app.kubernetes.io/name: cronjob-summary
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/component: cronjob
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    {{- range $key, $value := .Values.global.commonLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+
+data:
+  DB_HOST: {{ .Values.cronjobs.summary.config.dbHost | quote }}
+  DB_PORT: {{ .Values.cronjobs.summary.config.dbPort | quote }}
+  DB_NAME: {{ .Values.cronjobs.summary.config.dbName | quote }}
+
+  RABBITMQ_HOST: {{ .Values.cronjobs.summary.config.rabbitmqHost | quote }}
+  RABBITMQ_PORT: {{ .Values.cronjobs.summary.config.rabbitmqPort | quote }}
+  RABBITMQ_QUEUE: {{ .Values.cronjobs.summary.config.rabbitmqQueue | quote }}
+
+  CONSUMER_WAIT_SECONDS: {{ .Values.cronjobs.summary.config.consumerWaitSeconds | quote }}
+{{- end }}

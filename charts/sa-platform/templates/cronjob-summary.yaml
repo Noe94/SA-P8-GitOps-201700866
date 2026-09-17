@@ -1,0 +1,141 @@
+{{- if .Values.cronjobs.summary.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob-summary
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    app.kubernetes.io/name: cronjob-summary
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/component: cronjob
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    {{- range $key, $value := .Values.global.commonLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+
+spec:
+  schedule: {{ .Values.cronjobs.summary.schedule | quote }}
+  concurrencyPolicy: {{ .Values.cronjobs.summary.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjobs.summary.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjobs.summary.failedJobsHistoryLimit }}
+
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.cronjobs.summary.backoffLimit }}
+      activeDeadlineSeconds: {{ .Values.cronjobs.summary.activeDeadlineSeconds }}
+
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: cronjob-summary
+            app.kubernetes.io/instance: {{ .Release.Name | quote }}
+            app.kubernetes.io/component: cronjob
+            {{- range $key, $value := .Values.global.commonLabels }}
+            {{ $key }}: {{ $value | quote }}
+            {{- end }}
+
+        spec:
+          serviceAccountName: cronjob-summary
+          automountServiceAccountToken: {{ .Values.cronjobs.summary.serviceAccount.automount }}
+          restartPolicy: Never
+
+          securityContext:
+            {{- toYaml .Values.cronjobs.summary.podSecurityContext | nindent 12 }}
+
+          containers:
+            - name: summary-consumer
+
+              image: "{{ .Values.cronjobs.summary.image.repository }}:{{ default .Values.global.imageTag .Values.cronjobs.summary.image.tag }}"
+              imagePullPolicy: {{ .Values.cronjobs.summary.image.pullPolicy }}
+
+              envFrom:
+                - configMapRef:
+                    name: cronjob-summary-config
+
+              env:
+                - name: MODE
+                  value: "consumer"
+
+                - name: RUN_ID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.databaseSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.databaseSecret.usernameKey | quote }}
+
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.databaseSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.databaseSecret.passwordKey | quote }}
+
+                - name: RABBITMQ_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.rabbitmqSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.rabbitmqSecret.usernameKey | quote }}
+
+                - name: RABBITMQ_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.rabbitmqSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.rabbitmqSecret.passwordKey | quote }}
+
+              securityContext:
+                {{- toYaml .Values.cronjobs.summary.containerSecurityContext | nindent 16 }}
+
+              resources:
+                {{- toYaml .Values.cronjobs.summary.resources.consumer | nindent 16 }}
+
+            - name: summary-publisher
+
+              image: "{{ .Values.cronjobs.summary.image.repository }}:{{ default .Values.global.imageTag .Values.cronjobs.summary.image.tag }}"
+              imagePullPolicy: {{ .Values.cronjobs.summary.image.pullPolicy }}
+
+              envFrom:
+                - configMapRef:
+                    name: cronjob-summary-config
+
+              env:
+                - name: MODE
+                  value: "publisher"
+
+                - name: RUN_ID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.databaseSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.databaseSecret.usernameKey | quote }}
+
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.databaseSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.databaseSecret.passwordKey | quote }}
+
+                - name: RABBITMQ_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.rabbitmqSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.rabbitmqSecret.usernameKey | quote }}
+
+                - name: RABBITMQ_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.cronjobs.summary.rabbitmqSecret.name | quote }}
+                      key: {{ .Values.cronjobs.summary.rabbitmqSecret.passwordKey | quote }}
+
+              securityContext:
+                {{- toYaml .Values.cronjobs.summary.containerSecurityContext | nindent 16 }}
+
+              resources:
+                {{- toYaml .Values.cronjobs.summary.resources.publisher | nindent 16 }}
+{{- end }}

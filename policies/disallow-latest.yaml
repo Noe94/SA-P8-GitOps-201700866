@@ -1,0 +1,47 @@
+﻿apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: p8-disallow-latest
+  annotations:
+    policies.kyverno.io/title: Disallow latest image tag
+    policies.kyverno.io/category: Software Supply Chain
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+spec:
+  validationActions:
+    - Deny
+
+  evaluation:
+    background:
+      enabled: true
+
+  matchConstraints:
+    resourceRules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - pods
+
+  matchConditions:
+    - name: p8-namespaces
+      expression: >-
+        object.metadata.namespace in ['sa-p8-dev', 'sa-p8-prod']
+
+  variables:
+    - name: images
+      expression: >-
+        object.spec.containers.map(c, c.image)
+        + object.spec.?initContainers.orValue([]).map(c, c.image)
+        + object.spec.?ephemeralContainers.orValue([]).map(c, c.image)
+
+  validations:
+    - expression: >-
+        variables.images.all(i, parseImageReference(i).tag() != 'latest')
+      message: >-
+        El tag latest no está permitido. Las imágenes deben utilizar
+        una versión explícita e inmutable para P8.

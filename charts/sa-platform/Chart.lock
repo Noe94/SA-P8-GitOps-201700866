@@ -1,0 +1,27 @@
+dependencies:
+- name: catalog-service
+  repository: file://subcharts/catalog-service
+  version: 0.1.0
+- name: inventory-service
+  repository: file://subcharts/inventory-service
+  version: 0.1.0
+- name: orders-service
+  repository: file://subcharts/orders-service
+  version: 0.1.0
+- name: shipping-service
+  repository: file://subcharts/shipping-service
+  version: 0.1.0
+- name: auth-service
+  repository: file://subcharts/auth-service
+  version: 0.1.0
+- name: gateway
+  repository: file://subcharts/gateway
+  version: 0.1.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.8.13
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.0.14
+digest: sha256:53c7af5075e63b59cf1ba350f1ec46dd8c49408cf80662f03875ef4191a925dd
+generated: "2026-08-27T23:52:57.6298941-06:00"
