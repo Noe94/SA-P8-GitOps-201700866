@@ -10,6 +10,8 @@ spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     canary:
+      stableService: {{ .Values.config.serviceName }}
+      canaryService: {{ .Values.config.serviceName }}-canary
       maxSurge: 0
       maxUnavailable: 1
       steps:
