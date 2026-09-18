@@ -14,6 +14,6 @@ spec:
       failureLimit: 1
       provider:
         web:
-          url: "http://{{ include "orders-service.fullname" . }}:{{ .Values.service.port }}/health"
+          url: "http://{{ .Values.config.serviceName }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.service.port }}/health"
           timeoutSeconds: 5
           jsonPath: "{$.status}"
