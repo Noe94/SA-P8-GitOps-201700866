@@ -2,8 +2,7 @@
   namespace: sa-p8-dev
   environment: dev
   logLevel: debug
-  imageTag: "1.0.0"
-
+  imageTag: "1.1.2"
 catalog-service:
   replicaCount: 2
   resources:
