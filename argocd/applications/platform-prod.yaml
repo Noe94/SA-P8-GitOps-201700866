@@ -1,4 +1,4 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: p8-platform-prod
@@ -18,9 +18,27 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: sa-p8-prod
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      name: postgresql
+      jqPathExpressions:
+        - '.metadata.annotations["autopilot.gke.io/resource-adjustment"]'
+        - '.metadata.annotations["autopilot.gke.io/warden-version"]'
+        - '.spec.template.spec.containers[]?.resources.limits["ephemeral-storage"]'
+    - group: apps
+      kind: StatefulSet
+      name: rabbitmq
+      jqPathExpressions:
+        - '.metadata.annotations["autopilot.gke.io/resource-adjustment"]'
+        - '.metadata.annotations["autopilot.gke.io/warden-version"]'
+        - '.spec.template.spec.containers[]?.resources.limits["ephemeral-storage"]'
+        - '.spec.template.spec.initContainers[]?.resources.limits["ephemeral-storage"]'
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - ApplyOutOfSyncOnly=true
+
+      - RespectIgnoreDifferences=true
