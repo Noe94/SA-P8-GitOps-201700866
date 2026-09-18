@@ -2,7 +2,7 @@
   namespace: sa-p8-prod
   environment: prod
   logLevel: info
-  imageTag: "1.1.3"
+  imageTag: "1.1.4"
 catalog-service:
   replicaCount: 3
   resources:
