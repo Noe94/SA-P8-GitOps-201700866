@@ -10,10 +10,10 @@ spec:
     - name: health-check
       interval: 10s
       count: 3
-      successCondition: "result == 'ok'"
+      successCondition: "result == 'OK'"
       failureLimit: 1
       provider:
         web:
           url: "http://{{ .Values.config.serviceName }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.service.port }}/health"
           timeoutSeconds: 5
-          jsonPath: "{$.status}"
+          jsonPath: "{$.estado}"
