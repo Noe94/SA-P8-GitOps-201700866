@@ -19,6 +19,11 @@ spec:
     server: https://kubernetes.default.svc
     namespace: sa-p8-dev
   ignoreDifferences:
+    - group: argoproj.io
+      kind: Rollout
+      jsonPointers:
+        - /spec/replicas
+
     - group: apps
       kind: StatefulSet
       name: postgresql

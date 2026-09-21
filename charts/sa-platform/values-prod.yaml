@@ -1,4 +1,4 @@
-﻿global:
+global:
   namespace: sa-p8-prod
   environment: prod
   logLevel: info
@@ -62,3 +62,6 @@ gateway:
     limits:
       cpu: 500m
       memory: 256Mi
+
+ingress:
+  enabled: false

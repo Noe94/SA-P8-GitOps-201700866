@@ -1,10 +1,12 @@
-﻿global:
+global:
   namespace: sa-p8-dev
   environment: dev
   logLevel: debug
   imageTag: "1.1.4"
 catalog-service:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -14,7 +16,9 @@ catalog-service:
       memory: 128Mi
 
 inventory-service:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -24,7 +28,9 @@ inventory-service:
       memory: 128Mi
 
 orders-service:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -34,7 +40,9 @@ orders-service:
       memory: 128Mi
 
 shipping-service:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -44,7 +52,9 @@ shipping-service:
       memory: 128Mi
 
 auth-service:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -54,7 +64,9 @@ auth-service:
       memory: 192Mi
 
 gateway:
-  replicaCount: 2
+  replicaCount: 1
+  autoscaling:
+    minReplicas: 1
   resources:
     requests:
       cpu: 100m
@@ -62,3 +74,6 @@ gateway:
     limits:
       cpu: 250m
       memory: 128Mi
+
+ingress:
+  enabled: false
