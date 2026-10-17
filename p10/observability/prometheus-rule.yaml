@@ -26,7 +26,7 @@ spec:
                 }),
                 1
               )
-            )
+            ) or vector(0)
 
         - record: slo:error_budget:burn_rate5m
           expr: 1 - sli:disponibilidad:ratio_rate5m
