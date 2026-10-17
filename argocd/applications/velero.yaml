@@ -70,6 +70,18 @@ spec:
                 - sa-p8-prod
                 - sealed-secrets
 
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: velero
+      namespace: velero
+      jsonPointers:
+        - /spec/template/spec/containers/0/resources
+        - /spec/template/spec/initContainers/0/resources
+        - /metadata/annotations/autopilot.gke.io~1resource-adjustment
+        - /metadata/annotations/autopilot.gke.io~1warden-version
+        - /metadata/annotations/deployment.kubernetes.io~1revision
+
   destination:
     server: https://kubernetes.default.svc
     namespace: velero
