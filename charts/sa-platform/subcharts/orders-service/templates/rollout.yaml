@@ -17,14 +17,26 @@ spec:
         - analysis:
             templates:
               - templateName: {{ include "orders-service.fullname" . }}-analysis
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
         - setWeight: 50
         - analysis:
             templates:
               - templateName: {{ include "orders-service.fullname" . }}-analysis
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
         - setWeight: 80
         - analysis:
             templates:
               - templateName: {{ include "orders-service.fullname" . }}-analysis
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
 
   selector:
     matchLabels:

@@ -6,14 +6,30 @@ metadata:
   labels:
     {{- include "orders-service.labels" . | nindent 4 }}
 spec:
+  args:
+    - name: canary-hash
   metrics:
-    - name: health-check
-      interval: 10s
+    - name: canary-readiness
+      interval: 30s
       count: 3
-      successCondition: "result == 'OK'"
+      successCondition: "result[0] >= 1"
       failureLimit: 1
       provider:
-        web:
-          url: "http://{{ .Values.config.serviceName }}.{{ .Values.global.namespace }}.svc.cluster.local:{{ .Values.service.port }}/health"
-          timeoutSeconds: 5
-          jsonPath: "{$.estado}"
+        prometheus:
+          address: http://prometheus-operated.observabilidad.svc.cluster.local:9090
+          query: |
+            (
+              sum(kube_pod_status_ready{
+                namespace="{{ .Values.global.namespace }}",
+                condition="true",
+                pod=~".*{{ "{{args.canary-hash}}" }}.*"
+              })
+              /
+              clamp_min(
+                count(kube_pod_info{
+                  namespace="{{ .Values.global.namespace }}",
+                  pod=~".*{{ "{{args.canary-hash}}" }}.*"
+                }),
+                1
+              )
+            ) or vector(0)

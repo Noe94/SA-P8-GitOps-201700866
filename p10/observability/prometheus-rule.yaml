@@ -1,0 +1,42 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: p10-slo-rules
+  namespace: observabilidad
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: p10.slo
+      interval: 30s
+      rules:
+        - record: sli:disponibilidad:ratio_rate5m
+          expr: |
+            (
+              sum(kube_pod_status_ready{
+                namespace="sa-p8-prod",
+                pod=~".*orders.*",
+                condition="true"
+              })
+              /
+              clamp_min(
+                sum(kube_pod_info{
+                  namespace="sa-p8-prod",
+                  pod=~".*orders.*"
+                }),
+                1
+              )
+            )
+
+        - record: slo:error_budget:burn_rate5m
+          expr: 1 - sli:disponibilidad:ratio_rate5m
+
+        - alert: P10ErrorBudgetBurn
+          expr: slo:error_budget:burn_rate5m > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Consumo elevado del presupuesto de error de Orders"
+            description: "La disponibilidad observada de Orders esta por debajo del objetivo."
+            runbook: "P10/runbooks/slo.md"

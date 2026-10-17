@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: p10-observability
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Noe94/SA-P8-GitOps-201700866.git
+    targetRevision: main
+    path: p10/observability
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observabilidad
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
