@@ -1,0 +1,84 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: p9-velero
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    chart: velero
+    targetRevision: 12.1.0
+    helm:
+      releaseName: velero
+      values: |
+        image:
+          repository: velero/velero
+          tag: v1.18.4
+          pullPolicy: IfNotPresent
+
+        initContainers:
+          - name: velero-plugin-for-gcp
+            image: velero/velero-plugin-for-gcp:v1.14.4
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+
+        credentials:
+          useSecret: false
+
+        serviceAccount:
+          server:
+            create: true
+            name: velero
+            annotations:
+              iam.gke.io/gcp-service-account: velero-p9@sa-p8-201700866.iam.gserviceaccount.com
+
+        configuration:
+          backupStorageLocation:
+            - name: default
+              provider: gcp
+              bucket: sa-p8-201700866-p9-velero
+              default: true
+              config:
+                serviceAccount: velero-p9@sa-p8-201700866.iam.gserviceaccount.com
+
+          volumeSnapshotLocation:
+            - name: default
+              provider: gcp
+              config:
+                snapshotLocation: us-central1
+
+        backupsEnabled: true
+        snapshotsEnabled: true
+        deployNodeAgent: false
+
+        schedules:
+          p9-hourly:
+            disabled: false
+            schedule: "0 * * * *"
+            skipImmediately: false
+            template:
+              ttl: "168h0m0s"
+              storageLocation: default
+              snapshotVolumes: true
+              includedNamespaces:
+                - sa-p8-prod
+                - sealed-secrets
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
