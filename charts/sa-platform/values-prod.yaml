@@ -65,3 +65,10 @@ gateway:
 
 ingress:
   enabled: false
+# P9 - Estado explicito requerido para continuidad y restauracion
+postgresql:
+  primary:
+    replicaCount: 1
+
+rabbitmq:
+  replicaCount: 1
