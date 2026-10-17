@@ -67,8 +67,9 @@ ingress:
   enabled: false
 # P9 - Estado explicito requerido para continuidad y restauracion
 postgresql:
+  enabled: false
   primary:
-    replicaCount: 0
+    replicaCount: 1
 
 rabbitmq:
   replicaCount: 1
